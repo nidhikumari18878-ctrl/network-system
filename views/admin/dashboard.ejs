@@ -1,0 +1,236 @@
+<%- include('../partials/header')%>
+<div class="flex">
+<!-- Sidebar -->
+  <%- include('../partials/sidebar')%>
+<!-- Main Content -->
+
+<div class="flex-1">
+
+<!-- Navbar -->
+<%- include('../partials/navbar')%>
+
+<!-- Dashboard Content -->
+
+<section class="p-8">
+
+<!-- Cards -->
+
+<div class="grid grid-cols-3 gap-6">
+
+<div class="bg-zinc-900 rounded-xl p-6">
+
+<h3 class="text-zinc-400">
+Residents
+</h3>
+
+<h1 class="text-4xl font-bold text-yellow-400 mt-3">
+<%= totalResidents %>
+</h1>
+
+</div>
+
+<div class="bg-zinc-900 rounded-xl p-6">
+
+<h3 class="text-zinc-400">
+Visitors Today
+</h3>
+
+<h1 class="text-4xl font-bold text-yellow-400 mt-3">
+<%= todayVisitors %>
+</h1>
+
+</div>
+
+<div class="bg-zinc-900 rounded-xl p-6">
+
+<h3 class="text-zinc-400">
+Pending Complaints
+</h3>
+
+<h1 class="text-4xl font-bold text-yellow-400 mt-3">
+<%= pendingComplaints %>
+</h1>
+
+</div>
+
+</div>
+<!-- Analytics -->
+
+<div class="grid grid-cols-2 gap-6 mt-8">
+
+    <div class="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+
+        <h2 class="text-xl font-semibold mb-4">
+            Monthly Analytics
+        </h2>
+
+        <div class="h-72 bg-zinc-800 rounded-lg flex items-center justify-center">
+
+            <span class="text-zinc-500">
+               <canvas id="monthlyChart"></canvas>
+            </span>
+
+        </div>
+
+    </div>
+
+    <div class="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+
+        <h2 class="text-xl font-semibold mb-4">
+            Quick Actions
+        </h2>
+
+        <div class="grid grid-cols-2 gap-4">
+
+    <a href="/admin/residents/add"
+       class="bg-yellow-400 text-black py-3 rounded-lg font-semibold text-center">
+        + Add Resident
+    </a>
+
+    <a href="/admin/flats/add"
+       class="bg-blue-500 py-3 rounded-lg text-center">
+        Add Flat
+    </a>
+
+    <a href="/admin/notices/add"
+       class="bg-green-600 py-3 rounded-lg text-center">
+        Create Notice
+    </a>
+
+    <a href="/admin/complaints"
+       class="bg-red-500 py-3 rounded-lg text-center">
+        View Complaints
+    </a>
+
+</div>
+
+    </div>
+
+</div>
+<div class="bg-zinc-900 rounded-xl mt-8 p-6 border border-zinc-800">
+
+<h2 class="text-xl font-semibold mb-5">
+Recent Complaints
+</h2>
+
+<table class="w-full">
+
+<thead class="border-b border-zinc-700">
+
+<tr>
+
+<th class="py-3 text-left">Resident</th>
+
+<th>Status</th>
+
+<th>Category</th>
+
+<th>Date</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<% recentComplaints.forEach(complaint => { %>
+
+<tr class="border-b border-zinc-800">
+
+    <td class="py-4"><%= complaint.resident %></td>
+
+    <td><%= complaint.status %></td>
+
+    <td><%= complaint.category %></td>
+
+    <td><%= complaint.createdAt.toDateString() %></td>
+
+</tr>
+
+<% }) %>
+
+</tbody>
+
+</table>
+
+</div>
+<div class="bg-zinc-900 rounded-xl mt-8 p-6 border border-zinc-800">
+
+<h2 class="text-xl font-semibold mb-5">
+Today's Visitors
+</h2>
+
+<table class="w-full">
+
+<thead class="border-b border-zinc-700">
+
+<tr>
+
+<th class="py-3 text-left">Visitor</th>
+
+<th>Flat</th>
+
+<th>Status</th>
+
+<th>Time</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<% visitors.forEach(visitor => { %>
+
+<tr class="border-b border-zinc-800">
+
+    <td class="py-4"><%= visitor.name %></td>
+
+    <td><%= visitor.flat %></td>
+
+    <td><%= visitor.status %></td>
+
+    <td><%= visitor.createdAt.toLocaleTimeString() %></td>
+
+</tr>
+
+<% }) %>
+
+</tbody>
+</table>
+
+</div>
+<div class="bg-zinc-900 rounded-xl mt-8 p-6 border border-zinc-800">
+
+<h2 class="text-xl font-semibold mb-5">
+Latest Notices
+</h2>
+
+<div class="space-y-4">
+
+<% notices.forEach(notice => { %>
+
+<div class="bg-zinc-800 p-4 rounded-lg">
+
+    <h3 class="text-yellow-400 font-semibold">
+        <%= notice.title %>
+    </h3>
+
+    <p class="text-zinc-400 mt-2">
+        <%= notice.description %>
+    </p>
+
+</div>
+
+<% }) %>
+
+
+</div>
+
+</div>
+
+</section>
+   </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<%- include('../partials/footer')%>

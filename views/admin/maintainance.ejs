@@ -1,0 +1,214 @@
+<%- include('../partials/header')%>
+<div class="p-8">
+
+    <!-- Page Header -->
+
+    <div class="flex justify-between items-center mb-8">
+
+        <div>
+
+            <h1 class="text-3xl font-bold">
+                Maintenance Management
+            </h1>
+
+            <p class="text-zinc-400 mt-2">
+                Manage society maintenance payments and dues.
+            </p>
+
+        </div>
+
+        <a href="/admin/maintenance/add"
+            class="bg-yellow-400 text-black px-6 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition">
+
+            + Add Maintenance
+
+        </a>
+
+    </div>
+
+    <!-- Search & Filter -->
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mb-8">
+
+        <div class="grid md:grid-cols-4 gap-4">
+
+            <input
+                type="text"
+                placeholder="Search Resident..."
+                class="bg-black border border-zinc-700 rounded-lg px-4 py-3 outline-none focus:border-yellow-400">
+
+            <select
+                class="bg-black border border-zinc-700 rounded-lg px-4 py-3">
+
+                <option>All Blocks</option>
+                <option>A Block</option>
+                <option>B Block</option>
+                <option>C Block</option>
+                <option>D Block</option>
+
+            </select>
+
+            <select
+                class="bg-black border border-zinc-700 rounded-lg px-4 py-3">
+
+                <option>Payment Status</option>
+                <option>Paid</option>
+                <option>Pending</option>
+                <option>Overdue</option>
+
+            </select>
+
+            <button
+                class="bg-yellow-400 text-black rounded-lg font-semibold hover:bg-yellow-300">
+
+                Search
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- Maintenance Table -->
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+
+        <table class="w-full">
+
+            <thead class="bg-zinc-800">
+
+                <tr>
+
+                    <th class="py-4">Resident</th>
+                    <th>Flat</th>
+                    <th>Month</th>
+                    <th>Amount</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+          <tbody>
+
+<% records.forEach(record=>{ %>
+
+<tr>
+
+<td><%= record.residentName %></td>
+
+<td><%= record.flatNumber %></td>
+
+<td><%= record.month %></td>
+
+<td>₹<%= record.amount %></td>
+
+<td><%= record.dueDate.toDateString() %></td>
+
+<td>
+
+<%= record.status %>
+
+</td>
+
+<td>
+
+<a href="/admin/maintenance/view/<%=record._id%>">
+
+View
+
+</a>
+
+<a href="/admin/maintenance/edit/<%=record._id%>">
+
+Edit
+
+</a>
+
+</td>
+
+</tr>
+
+<% }) %>
+
+</tbody>
+        </table>
+
+    </div>
+
+    <!-- Summary Cards -->
+
+    <div class="grid grid-cols-3 gap-6 mt-8">
+
+        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+
+            <h3 class="text-zinc-400">
+                Total Collected
+            </h3>
+
+            <p class="text-3xl font-bold text-green-400 mt-2">
+               ₹<%= totalCollected %>
+            </p>
+
+        </div>
+
+        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+
+            <h3 class="text-zinc-400">
+                Pending Amount
+            </h3>
+
+            <p class="text-3xl font-bold text-yellow-400 mt-2">
+                ₹<%= pendingAmount %>
+            </p>
+
+        </div>
+
+        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+
+            <h3 class="text-zinc-400">
+                Overdue Amount
+            </h3>
+
+            <p class="text-3xl font-bold text-red-500 mt-2">
+                ₹<%= overdueAmount %>
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- Pagination -->
+
+    <div class="flex justify-between items-center mt-8">
+
+        <p class="text-zinc-400">
+            Showing 1 to 3 of 50 Records
+        </p>
+
+        <div class="flex gap-2">
+
+            <button class="bg-zinc-800 px-4 py-2 rounded">
+                Previous
+            </button>
+
+            <button class="bg-yellow-400 text-black px-4 py-2 rounded">
+                1
+            </button>
+
+            <button class="bg-zinc-800 px-4 py-2 rounded">
+                2
+            </button>
+
+            <button class="bg-zinc-800 px-4 py-2 rounded">
+                Next
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+<%- include('../partials/footer')%>

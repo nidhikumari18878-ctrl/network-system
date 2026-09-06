@@ -1,0 +1,217 @@
+<%- include('../partials/header')%>
+<div class="p-8">
+
+    <!-- Page Header -->
+
+    <div class="flex justify-between items-center mb-8">
+
+        <div>
+
+            <h1 class="text-3xl font-bold">
+                Visitor Management
+            </h1>
+
+            <p class="text-zinc-400 mt-2">
+                Manage all visitor entries and exits.
+            </p>
+
+        </div>
+
+        <a href="/admin/visitors/add"
+            class="bg-yellow-400 text-black px-6 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition">
+
+            + Add Visitor
+
+        </a>
+
+    </div>
+
+    <!-- Search & Filter -->
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mb-8">
+
+        <div class="grid md:grid-cols-4 gap-4">
+
+            <input
+                type="text"
+                placeholder="Search Visitor..."
+                class="bg-black border border-zinc-700 rounded-lg px-4 py-3 outline-none focus:border-yellow-400">
+
+            <input
+                type="text"
+                placeholder="Flat Number"
+                class="bg-black border border-zinc-700 rounded-lg px-4 py-3 outline-none focus:border-yellow-400">
+
+            <select
+                class="bg-black border border-zinc-700 rounded-lg px-4 py-3">
+
+                <option>All Status</option>
+                <option>Waiting</option>
+                <option>Entered</option>
+                <option>Exited</option>
+
+            </select>
+
+            <button
+                class="bg-yellow-400 text-black rounded-lg font-semibold hover:bg-yellow-300">
+
+                Search
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- Visitors Table -->
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+
+        <table class="w-full">
+
+            <thead class="bg-zinc-800">
+
+                <tr>
+
+                    <th class="py-4">Visitor</th>
+                    <th>Phone</th>
+                    <th>Resident</th>
+                    <th>Flat</th>
+                    <th>Purpose</th>
+                    <th>Entry Time</th>
+                    <th>Status</th>
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+           <tbody>
+
+<% visitors.forEach(visitor => { %>
+
+<tr class="border-b border-zinc-800 hover:bg-zinc-800">
+
+    <td class="py-4"><%= visitor.visitorName %></td>
+
+    <td><%= visitor.phone %></td>
+
+    <td><%= visitor.residentName %></td>
+
+    <td><%= visitor.flatNumber %></td>
+
+    <td><%= visitor.purpose %></td>
+
+    <td>
+        <%= visitor.entryTime.toLocaleTimeString() %>
+    </td>
+
+    <td>
+
+        <% if(visitor.status === "Waiting"){ %>
+
+            <span class="bg-yellow-500 text-black px-3 py-1 rounded-full text-sm">
+                Waiting
+            </span>
+
+        <% } else if(visitor.status === "Entered"){ %>
+
+            <span class="bg-green-600 px-3 py-1 rounded-full text-sm">
+                Entered
+            </span>
+
+        <% } else { %>
+
+            <span class="bg-red-600 px-3 py-1 rounded-full text-sm">
+                Exited
+            </span>
+
+        <% } %>
+
+    </td>
+
+    <td>
+
+        <div class="flex gap-2 justify-center">
+
+            <a href="/admin/visitors/view/<%= visitor._id %>"
+               class="bg-blue-600 px-3 py-2 rounded text-sm">
+
+                View
+
+            </a>
+
+            <% if(visitor.status === "Waiting"){ %>
+
+                <form action="/admin/visitors/approve/<%= visitor._id %>" method="POST">
+
+                    <button class="bg-green-600 px-3 py-2 rounded text-sm">
+
+                        Approve
+
+                    </button>
+
+                </form>
+
+            <% } %>
+
+            <% if(visitor.status === "Entered"){ %>
+
+                <form action="/admin/visitors/exit/<%= visitor._id %>" method="POST">
+
+                    <button class="bg-yellow-400 text-black px-3 py-2 rounded text-sm">
+
+                        Exit
+
+                    </button>
+
+                </form>
+
+            <% } %>
+
+        </div>
+
+    </td>
+
+</tr>
+
+<% }) %>
+
+</tbody>
+
+        </table>
+
+    </div>
+
+    <!-- Pagination -->
+
+    <div class="flex justify-between items-center mt-8">
+
+        <p class="text-zinc-400">
+            Showing 1 to 3 of 48 Visitors
+        </p>
+
+        <div class="flex gap-2">
+
+            <button class="bg-zinc-800 px-4 py-2 rounded">
+                Previous
+            </button>
+
+            <button class="bg-yellow-400 text-black px-4 py-2 rounded">
+                1
+            </button>
+
+            <button class="bg-zinc-800 px-4 py-2 rounded">
+                2
+            </button>
+
+            <button class="bg-zinc-800 px-4 py-2 rounded">
+                Next
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+<%- include('../partials/footer')%>

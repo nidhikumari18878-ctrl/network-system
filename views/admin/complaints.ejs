@@ -1,0 +1,183 @@
+<%- include('../partials/header')%>
+<div class="p-8">
+
+    <!-- Page Header -->
+
+    <div class="flex justify-between items-center mb-8">
+
+        <div>
+
+            <h1 class="text-3xl font-bold">
+                Complaint Management
+            </h1>
+
+            <p class="text-zinc-400 mt-2">
+                View and manage all resident complaints.
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- Search & Filter -->
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mb-8">
+
+        <div class="grid md:grid-cols-4 gap-4">
+
+            <input
+                type="text"
+                placeholder="Search Complaint..."
+                class="bg-black border border-zinc-700 rounded-lg px-4 py-3 outline-none focus:border-yellow-400">
+
+            <select
+                class="bg-black border border-zinc-700 rounded-lg px-4 py-3">
+
+                <option>All Categories</option>
+                <option>Water</option>
+                <option>Electricity</option>
+                <option>Parking</option>
+                <option>Security</option>
+                <option>Cleaning</option>
+
+            </select>
+
+            <select
+                class="bg-black border border-zinc-700 rounded-lg px-4 py-3">
+
+                <option>All Status</option>
+                <option>Pending</option>
+                <option>In Progress</option>
+                <option>Resolved</option>
+
+            </select>
+
+            <button
+                class="bg-yellow-400 text-black rounded-lg font-semibold hover:bg-yellow-300">
+
+                Search
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- Complaint Table -->
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+
+        <table class="w-full">
+
+            <thead class="bg-zinc-800">
+
+                <tr>
+
+                    <th class="py-4">Resident</th>
+                    <th>Flat</th>
+                    <th>Category</th>
+                    <th>Complaint</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+<tbody>
+
+<% complaints.forEach(complaint => { %>
+
+<tr>
+
+    <td><%= complaint.resident %></td>
+
+    <td><%= complaint.flat %></td>
+
+    <td><%= complaint.category %></td>
+
+    <td><%= complaint.complaint %></td>
+
+    <td>
+
+        <span>
+
+            <%= complaint.status %>
+
+        </span>
+
+    </td>
+
+    <td>
+
+        <%= complaint.createdAt.toDateString() %>
+
+    </td>
+
+    <td>
+
+        <a href="/admin/complaints/view/<%= complaint._id %>">
+
+            View
+
+        </a>
+
+        <a href="/admin/complaints/update/<%= complaint._id %>">
+
+            Update
+
+        </a>
+
+    </td>
+
+</tr>
+
+<% }) %>
+
+</tbody>
+        </table>
+
+    </div>
+
+    <!-- Pagination -->
+
+    <div class="flex justify-between items-center mt-8">
+
+        <p class="text-zinc-400">
+
+            Showing 1 to 3 of 35 Complaints
+
+        </p>
+
+        <div class="flex gap-2">
+
+            <button class="bg-zinc-800 px-4 py-2 rounded">
+
+                Previous
+
+            </button>
+
+            <button class="bg-yellow-400 text-black px-4 py-2 rounded">
+
+                1
+
+            </button>
+
+            <button class="bg-zinc-800 px-4 py-2 rounded">
+
+                2
+
+            </button>
+
+            <button class="bg-zinc-800 px-4 py-2 rounded">
+
+                Next
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+<%- include('../partials/footer')%>

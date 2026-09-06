@@ -1,0 +1,192 @@
+<%- include('../partials/header')%>
+<div class="p-8">
+
+    <!-- Page Header -->
+
+    <div class="flex justify-between items-center mb-8">
+
+        <div>
+
+            <h1 class="text-3xl font-bold">
+                Notice Board
+            </h1>
+
+            <p class="text-zinc-400 mt-2">
+                Create and manage society notices.
+            </p>
+
+        </div>
+
+        <a href="/admin/notices/add"
+            class="bg-yellow-400 text-black px-6 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition">
+
+            + Add Notice
+
+        </a>
+
+    </div>
+
+    <!-- Search -->
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mb-8">
+
+        <div class="grid md:grid-cols-2 gap-4">
+
+            <input
+                type="text"
+                placeholder="Search Notice..."
+                class="bg-black border border-zinc-700 rounded-lg px-4 py-3 outline-none focus:border-yellow-400">
+
+            <button
+                class="bg-yellow-400 text-black rounded-lg font-semibold hover:bg-yellow-300">
+
+                Search
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- Notice Table -->
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+
+        <table class="w-full">
+
+            <thead class="bg-zinc-800">
+
+                <tr>
+
+                    <th class="py-4">Title</th>
+                    <th>Description</th>
+                    <th>Posted By</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+           <tbody>
+
+<% notices.forEach(notice => { %>
+
+<tr class="border-b border-zinc-800 hover:bg-zinc-800">
+
+    <td class="py-4"><%= notice.title %></td>
+
+    <td><%= notice.description %></td>
+
+    <td><%= notice.postedBy %></td>
+
+    <td><%= notice.createdAt.toDateString() %></td>
+
+    <td>
+
+        <% if(notice.status === "Published"){ %>
+
+            <span class="bg-green-600 px-3 py-1 rounded-full text-sm">
+
+                Published
+
+            </span>
+
+        <% } else { %>
+
+            <span class="bg-yellow-500 text-black px-3 py-1 rounded-full text-sm">
+
+                Draft
+
+            </span>
+
+        <% } %>
+
+    </td>
+
+    <td>
+
+        <div class="flex justify-center gap-2">
+
+            <a href="/admin/notices/view/<%= notice._id %>"
+               class="bg-blue-600 px-3 py-2 rounded text-sm">
+
+                View
+
+            </a>
+
+            <a href="/admin/notices/edit/<%= notice._id %>"
+               class="bg-yellow-400 text-black px-3 py-2 rounded text-sm">
+
+                Edit
+
+            </a>
+
+            <form action="/admin/notices/delete/<%= notice._id %>"
+                  method="POST">
+
+                <button
+                    class="bg-red-600 px-3 py-2 rounded text-sm">
+
+                    Delete
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </td>
+
+</tr>
+
+<% }) %>
+
+</tbody>
+        </table>
+
+    </div>
+
+    <!-- Pagination -->
+
+    <div class="flex justify-between items-center mt-8">
+
+        <p class="text-zinc-400">
+
+            Showing 1 to 2 of 15 Notices
+
+        </p>
+
+        <div class="flex gap-2">
+
+            <button class="bg-zinc-800 px-4 py-2 rounded">
+
+                Previous
+
+            </button>
+
+            <button class="bg-yellow-400 text-black px-4 py-2 rounded">
+
+                1
+
+            </button>
+
+            <button class="bg-zinc-800 px-4 py-2 rounded">
+
+                2
+
+            </button>
+
+            <button class="bg-zinc-800 px-4 py-2 rounded">
+
+                Next
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+<%- include('../partials/footer')%>
