@@ -1,0 +1,74 @@
+<%- include('../partials/header') %>
+
+<div class="p-8 max-w-3xl mx-auto">
+
+    <h1 class="text-3xl font-bold mb-6">
+        Add Notice
+    </h1>
+
+    <form
+        action="/admin/notices/add"
+        method="POST"
+        class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 space-y-4"
+    >
+
+        <input
+            type="text"
+            name="title"
+            placeholder="Notice Title"
+            required
+            class="w-full bg-black border border-zinc-700 rounded-lg px-4 py-3"
+        >
+
+        <textarea
+            name="description"
+            rows="6"
+            placeholder="Notice Description"
+            required
+            class="w-full bg-black border border-zinc-700 rounded-lg px-4 py-3"
+        ></textarea>
+
+        <input
+            type="text"
+            name="postedBy"
+            value="Admin"
+            placeholder="Posted By"
+            class="w-full bg-black border border-zinc-700 rounded-lg px-4 py-3"
+        >
+
+        <select
+            name="status"
+            class="w-full bg-black border border-zinc-700 rounded-lg px-4 py-3"
+        >
+            <option value="Published">
+                Published
+            </option>
+
+            <option value="Draft">
+                Draft
+            </option>
+        </select>
+
+        <div class="flex gap-3">
+
+            <button
+                type="submit"
+                class="bg-yellow-400 text-black px-6 py-3 rounded-lg font-semibold"
+            >
+                Save Notice
+            </button>
+
+            <a
+                href="/admin/notices"
+                class="bg-zinc-700 px-6 py-3 rounded-lg"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+<%- include('../partials/footer') %>

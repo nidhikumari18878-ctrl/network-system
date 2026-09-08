@@ -1,0 +1,77 @@
+<%- include('../partials/header') %>
+
+<div class="p-8 max-w-3xl mx-auto">
+
+    <h1 class="text-3xl font-bold mb-6">
+        Maintenance Details
+    </h1>
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 space-y-4">
+
+        <div>
+            <p class="text-zinc-400">Resident Name</p>
+            <p class="text-lg font-semibold">
+                <%= record.residentName %>
+            </p>
+        </div>
+
+        <div>
+            <p class="text-zinc-400">Flat Number</p>
+            <p class="text-lg font-semibold">
+                <%= record.flatNumber %>
+            </p>
+        </div>
+
+        <div>
+            <p class="text-zinc-400">Block</p>
+            <p class="text-lg font-semibold">
+                <%= record.block %>
+            </p>
+        </div>
+
+        <div>
+            <p class="text-zinc-400">Month</p>
+            <p class="text-lg font-semibold">
+                <%= record.month %>
+            </p>
+        </div>
+
+        <div>
+            <p class="text-zinc-400">Amount</p>
+            <p class="text-lg font-semibold">
+                ₹<%= record.amount %>
+            </p>
+        </div>
+
+        <div>
+            <p class="text-zinc-400">Due Date</p>
+            <p class="text-lg font-semibold">
+                <%= record.dueDate
+                    ? new Date(record.dueDate).toLocaleDateString()
+                    : "-" %>
+            </p>
+        </div>
+
+        <div>
+            <p class="text-zinc-400">Status</p>
+            <p class="text-lg font-semibold">
+                <%= record.status %>
+            </p>
+        </div>
+
+        <div class="pt-4">
+
+            <a
+                href="/admin/maintenance"
+                class="inline-block bg-zinc-700 px-5 py-3 rounded-lg"
+            >
+                Back to Maintenance
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+<%- include('../partials/footer') %>

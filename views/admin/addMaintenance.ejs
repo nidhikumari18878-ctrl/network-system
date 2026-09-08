@@ -1,0 +1,67 @@
+<%- include('../partials/header') %>
+
+<div class="p-8 max-w-3xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6">Add Maintenance</h1>
+
+    <form action="/admin/maintenance/add" method="POST">
+
+        <input
+            type="text"
+            name="residentName"
+            placeholder="Resident Name"
+            required
+        >
+
+        <input
+            type="text"
+            name="flatNumber"
+            placeholder="Flat Number"
+            required
+        >
+
+        <input
+            type="text"
+            name="block"
+            placeholder="Block"
+            required
+        >
+
+        <input
+            type="text"
+            name="month"
+            placeholder="Month"
+            required
+        >
+
+        <input
+            type="number"
+            name="amount"
+            placeholder="Amount"
+            min="0"
+            required
+        >
+
+        <input
+            type="date"
+            name="dueDate"
+            required
+        >
+
+        <select name="status">
+            <option value="Pending">Pending</option>
+            <option value="Paid">Paid</option>
+            <option value="Overdue">Overdue</option>
+        </select>
+
+        <button type="submit">
+            Save Maintenance
+        </button>
+
+        <a href="/admin/maintenance">
+            Cancel
+        </a>
+
+    </form>
+</div>
+
+<%- include('../partials/footer') %>

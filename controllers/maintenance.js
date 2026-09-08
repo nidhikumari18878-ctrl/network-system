@@ -1,9 +1,7 @@
 const Maintenance = require("../models/maintances");
 
 exports.getMaintenance = async (req, res) => {
-
     try {
-
         const search = req.query.search || "";
         const block = req.query.block || "";
         const status = req.query.status || "";
@@ -28,122 +26,152 @@ exports.getMaintenance = async (req, res) => {
         const records = await Maintenance.find(query)
             .sort({ createdAt: -1 });
 
-        const totalCollected = await Maintenance.aggregate([
-            {
-                $match: {
-                    status: "Paid"
-                }
-            },
-            {
-                $group: {
-                    _id: null,
-                    total: {
-                        $sum: "$amount"
+        const totalCollected =
+            await Maintenance.aggregate([
+                {
+                    $match: {
+                        status: "Paid"
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        total: {
+                            $sum: "$amount"
+                        }
                     }
                 }
-            }
-        ]);
+            ]);
 
-        const pendingAmount = await Maintenance.aggregate([
-            {
-                $match: {
-                    status: "Pending"
-                }
-            },
-            {
-                $group: {
-                    _id: null,
-                    total: {
-                        $sum: "$amount"
+        const pendingAmount =
+            await Maintenance.aggregate([
+                {
+                    $match: {
+                        status: "Pending"
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        total: {
+                            $sum: "$amount"
+                        }
                     }
                 }
-            }
-        ]);
+            ]);
 
-        const overdueAmount = await Maintenance.aggregate([
-            {
-                $match: {
-                    status: "Overdue"
-                }
-            },
-            {
-                $group: {
-                    _id: null,
-                    total: {
-                        $sum: "$amount"
+        const overdueAmount =
+            await Maintenance.aggregate([
+                {
+                    $match: {
+                        status: "Overdue"
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        total: {
+                            $sum: "$amount"
+                        }
                     }
                 }
-            }
-        ]);
+            ]);
 
         res.render("admin/maintainance", {
-
             records,
-
             totalCollected:
                 totalCollected[0]?.total || 0,
-
             pendingAmount:
                 pendingAmount[0]?.total || 0,
-
             overdueAmount:
                 overdueAmount[0]?.total || 0
-
         });
 
     } catch (err) {
-
-        console.log(err);
-
+        console.error("Maintenance Error:", err);
+        res.status(500).send(err.message);
     }
-
 };
-exports.addMaintenance = async (req,res)=>{
 
-    await Maintenance.create(req.body);
+exports.showAddMaintenance = (req, res) => {
+    res.render("admin/addMaintenance");
+};
 
-    res.redirect("/admin/maintainance");
+exports.addMaintenance = async (req, res) => {
+    try {
+        await Maintenance.create(req.body);
 
-}
-exports.viewMaintenance = async(req,res)=>{
+        res.redirect("/admin/maintenance");
+    } catch (err) {
+        console.error("Add Maintenance Error:", err);
+        res.status(500).send(err.message);
+    }
+};
 
-    const record = await Maintenance.findById(req.params.id);
+exports.viewMaintenance = async (req, res) => {
+    try {
+        const record = await Maintenance.findById(req.params.id);
 
-    res.render("admin/viewMaintenance",{
+        if (!record) {
+            return res.status(404).send(
+                "Maintenance record not found"
+            );
+        }
 
-        record
+        res.render("admin/viewMaintenance", {
+            record
+        });
 
-    });
+    } catch (err) {
+        console.error("View Maintenance Error:", err);
+        res.status(500).send(err.message);
+    }
+};
 
-}
-exports.showEditMaintenance = async(req,res)=>{
+exports.showEditMaintenance = async (req, res) => {
+    try {
+        const record = await Maintenance.findById(req.params.id);
 
-    const record = await Maintenance.findById(req.params.id);
+        if (!record) {
+            return res.status(404).send(
+                "Maintenance record not found"
+            );
+        }
 
-    res.render("admin/editMaintenance",{
+        res.render("admin/editMaintenance", {
+            record
+        });
 
-        record
+    } catch (err) {
+        console.error("Edit Maintenance Error:", err);
+        res.status(500).send(err.message);
+    }
+};
 
-    });
+exports.updateMaintenance = async (req, res) => {
+    try {
+        await Maintenance.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { runValidators: true }
+        );
 
-}
-exports.updateMaintenance = async(req,res)=>{
+        res.redirect("/admin/maintenance");
 
-    await Maintenance.findByIdAndUpdate(
+    } catch (err) {
+        console.error("Update Maintenance Error:", err);
+        res.status(500).send(err.message);
+    }
+};
 
-        req.params.id,
+exports.deleteMaintenance = async (req, res) => {
+    try {
+        await Maintenance.findByIdAndDelete(req.params.id);
 
-        req.body
+        res.redirect("/admin/maintenance");
 
-    );
-
-    res.redirect("/admin/maintainance");
-
-}
-exports.deleteMaintenance = async(req,res)=>{
-
-    await Maintenance.findByIdAndDelete(req.params.id);
-
-    res.redirect("/admin/maintainance");
-
-}
+    } catch (err) {
+        console.error("Delete Maintenance Error:", err);
+        res.status(500).send(err.message);
+    }
+};

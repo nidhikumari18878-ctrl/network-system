@@ -1,23 +1,16 @@
 const Notice = require("../models/notice");
 
-// =============================
-// List Notices
-// =============================
 exports.getNotices = async (req, res) => {
-
     try {
-
         const search = req.query.search || "";
 
         const query = {};
 
         if (search) {
-
             query.title = {
                 $regex: search,
                 $options: "i"
             };
-
         }
 
         const notices = await Notice.find(query)
@@ -29,30 +22,17 @@ exports.getNotices = async (req, res) => {
         });
 
     } catch (err) {
-
-        console.log(err);
+        console.error("Get Notices Error:", err);
         res.status(500).send(err.message);
-
     }
-
 };
 
-// =============================
-// Show Add Notice Page
-// =============================
 exports.showAddNotice = (req, res) => {
-
     res.render("admin/addNotice");
-
 };
 
-// =============================
-// Add Notice
-// =============================
 exports.addNotice = async (req, res) => {
-
     try {
-
         const {
             title,
             description,
@@ -60,42 +40,36 @@ exports.addNotice = async (req, res) => {
             status
         } = req.body;
 
+        if (!title || !description) {
+            return res.status(400).send(
+                "Title and description are required"
+            );
+        }
+
         await Notice.create({
-
             title,
-
             description,
-
-            postedBy,
-
-            status
-
+            postedBy: postedBy || "Admin",
+            status: status || "Draft",
+            published: status === "Published"
         });
 
-        res.redirect("/admin/notice");
+        res.redirect("/admin/notices");
 
     } catch (err) {
-
-        console.log(err);
+        console.error("Add Notice Error:", err);
         res.status(500).send(err.message);
-
     }
-
 };
 
-// =============================
-// View Notice
-// =============================
 exports.viewNotice = async (req, res) => {
-
     try {
-
         const notice = await Notice.findById(req.params.id);
 
         if (!notice) {
-
-            return res.status(404).send("Notice not found");
-
+            return res.status(404).send(
+                "Notice not found"
+            );
         }
 
         res.render("admin/viewNotice", {
@@ -103,27 +77,19 @@ exports.viewNotice = async (req, res) => {
         });
 
     } catch (err) {
-
-        console.log(err);
+        console.error("View Notice Error:", err);
         res.status(500).send(err.message);
-
     }
-
 };
 
-// =============================
-// Show Edit Page
-// =============================
 exports.showEditNotice = async (req, res) => {
-
     try {
-
         const notice = await Notice.findById(req.params.id);
 
         if (!notice) {
-
-            return res.status(404).send("Notice not found");
-
+            return res.status(404).send(
+                "Notice not found"
+            );
         }
 
         res.render("admin/editNotice", {
@@ -131,21 +97,13 @@ exports.showEditNotice = async (req, res) => {
         });
 
     } catch (err) {
-
-        console.log(err);
+        console.error("Edit Notice Error:", err);
         res.status(500).send(err.message);
-
     }
-
 };
 
-// =============================
-// Update Notice
-// =============================
 exports.updateNotice = async (req, res) => {
-
     try {
-
         const {
             title,
             description,
@@ -154,45 +112,33 @@ exports.updateNotice = async (req, res) => {
         } = req.body;
 
         await Notice.findByIdAndUpdate(
-
             req.params.id,
-
             {
                 title,
                 description,
-                postedBy,
-                status
-            }
-
+                postedBy: postedBy || "Admin",
+                status,
+                published: status === "Published"
+            },
+            { runValidators: true }
         );
 
-        res.redirect("/admin/notice");
+        res.redirect("/admin/notices");
 
     } catch (err) {
-
-        console.log(err);
+        console.error("Update Notice Error:", err);
         res.status(500).send(err.message);
-
     }
-
 };
 
-// =============================
-// Delete Notice
-// =============================
 exports.deleteNotice = async (req, res) => {
-
     try {
-
         await Notice.findByIdAndDelete(req.params.id);
 
-        res.redirect("/admin/notice");
+        res.redirect("/admin/notices");
 
     } catch (err) {
-
-        console.log(err);
+        console.error("Delete Notice Error:", err);
         res.status(500).send(err.message);
-
     }
-
 };
