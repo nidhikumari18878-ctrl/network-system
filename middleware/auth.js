@@ -1,6 +1,11 @@
-const requireLogin = (req, res, next) => {
 
-    if (!req.session.user) {
+// ================================
+// Authentication Middleware
+// ================================
+
+const requireLogin = (req, res, next) => {
+    // User session check
+    if (!req.session || !req.session.user) {
         return res.redirect("/login");
     }
 
@@ -8,16 +13,21 @@ const requireLogin = (req, res, next) => {
 };
 
 
-const requireRole = (role) => {
+// ================================
+// Role-Based Authorization
+// ================================
 
+const requireRole = (role) => {
     return (req, res, next) => {
 
-        if (!req.session.user) {
+        // First check authentication
+        if (!req.session || !req.session.user) {
             return res.redirect("/login");
         }
 
+        // Check whether requested role matches
         if (req.session.user.role !== role) {
-            return res.status(403).send("Access Denied");
+            return res.status(403).send("403 - Access Denied");
         }
 
         next();
@@ -25,7 +35,35 @@ const requireRole = (role) => {
 };
 
 
+// ================================
+// Multiple Role Authorization
+// ================================
+
+const requireAnyRole = (...roles) => {
+    return (req, res, next) => {
+
+        // Authentication check
+        if (!req.session || !req.session.user) {
+            return res.redirect("/login");
+        }
+
+        // Authorization check
+        if (!roles.includes(req.session.user.role)) {
+            return res.status(403).send("403 - Access Denied");
+        }
+
+        next();
+    };
+};
+
+
+// ================================
+// Export
+// ================================
+
 module.exports = {
     requireLogin,
-    requireRole
+    requireRole,
+    requireAnyRole
 };
+

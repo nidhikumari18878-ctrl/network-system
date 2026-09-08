@@ -1,4 +1,4 @@
-const Complaint = require("../models/Complaint");
+const Complaint = require("../models/complaint");
 
 // =============================
 // Get All Complaints

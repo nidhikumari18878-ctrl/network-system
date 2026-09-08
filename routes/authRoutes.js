@@ -1,46 +1,57 @@
+
 const express = require("express");
 
 const router = express.Router();
 
-const authController =
-    require("../controllers/authController");
+const authController = require("../controllers/authController");
 
-const {
-    requireLogin,
-    requireRole
-}=require("../middleware/auth")
-// Register Page
+// ==========================
+// REGISTER
+// ==========================
 
+// Register page
 router.get(
     "/register",
     authController.getRegister
 );
 
-
-// Register User
-
+// Register user
 router.post(
     "/register",
     authController.register
 );
-// login Page
 
+
+// ==========================
+// LOGIN
+// ==========================
+
+// Login page
 router.get(
-    "/register",
+    "/login",
     authController.getLogin
 );
 
-
-// Register User
-
+// Login user
 router.post(
-    "/register",
+    "/login",
     authController.login
 );
+
+
+// ==========================
+// LOGOUT
+// ==========================
+
 router.get(
     "/logout",
     authController.logout
 );
-router.get("/residents",requireRole("admin"),ResidentController.getResidents);
+
+
+// ==========================
+// EXPORT
+// ==========================
 
 module.exports = router;
+

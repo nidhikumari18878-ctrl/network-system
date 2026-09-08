@@ -1,53 +1,39 @@
-// const User = require("../models/User");
 
-// exports.getDashboard = async (req, res) => {
+const User = require("../models/User");
+const Visitor = require("../models/visitor");
+const Complaint = require("../models/complaint");
+const Notice = require("../models/notice");
+const Maintenance = require("../models/maintances");
 
-//     try {
-
-//         const totalResidents = await User.countDocuments({
-//             role: "resident"
-//         });
-
-//         const totalSecurity = await User.countDocuments({
-//             role: "security"
-//         });
-
-//         res.render("admin/dashboard", {
-//             totalResidents,
-//             totalSecurity
-//         });
-
-//     } catch (error) {
-
-//         console.log("Dashboard Error:", error);
-
-//         res.status(500).send("Server Error");
-
-//     }
-// };
-
-const Resident = require("../models/Resident");
-const Visitor = require("../models/Visitor");
-const Complaint = require("../models/Complaint");
-const Notice = require("../models/Notice");
+// ==================================================
+// ADMIN DASHBOARD
+// ==================================================
 
 const dashboard = async (req, res) => {
     try {
+        // ------------------------------------------
+        // Total Active Residents
+        // ------------------------------------------
 
-        // Total residents
-        const totalResidents = await Resident.countDocuments({
-            status: "active"
+        const totalResidents = await User.countDocuments({
+            role: "resident",
+            status: "Active"
         });
 
-        // Start of today
+        // ------------------------------------------
+        // Today's Date Range
+        // ------------------------------------------
+
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
 
-        // End of today
         const endOfDay = new Date();
         endOfDay.setHours(23, 59, 59, 999);
 
-        // Today's visitors
+        // ------------------------------------------
+        // Today's Visitors Count
+        // ------------------------------------------
+
         const todayVisitors = await Visitor.countDocuments({
             createdAt: {
                 $gte: startOfDay,
@@ -55,52 +41,66 @@ const dashboard = async (req, res) => {
             }
         });
 
-        // Pending complaints
+        // ------------------------------------------
+        // Pending Complaints
+        // ------------------------------------------
+
         const pendingComplaints = await Complaint.countDocuments({
             status: "Pending"
         });
 
-        // Recent complaints
-        const recentComplaints = await Complaint
-            .find()
+        // ------------------------------------------
+        // Recent Complaints
+        // ------------------------------------------
+
+        const recentComplaints = await Complaint.find()
             .sort({ createdAt: -1 })
             .limit(5)
             .lean();
 
-        // Today's visitors list
-        const visitors = await Visitor
-            .find({
-                createdAt: {
-                    $gte: startOfDay,
-                    $lte: endOfDay
-                }
-            })
+        // ------------------------------------------
+        // Today's Visitors
+        // ------------------------------------------
+
+        const visitors = await Visitor.find({
+            createdAt: {
+                $gte: startOfDay,
+                $lte: endOfDay
+            }
+        })
             .sort({ createdAt: -1 })
             .limit(10)
             .lean();
 
-        // Latest notices
-        const notices = await Notice
-            .find({
-                published: true
-            })
+        // ------------------------------------------
+        // Latest Published Notices
+        // ------------------------------------------
+
+        const notices = await Notice.find({
+            status: "Published"
+        })
             .sort({ createdAt: -1 })
             .limit(5)
             .lean();
 
-        // Monthly analytics
+        // ------------------------------------------
+        // Monthly Visitor Analytics
+        // ------------------------------------------
+
         const currentYear = new Date().getFullYear();
+
+        const yearStart = new Date(currentYear, 0, 1);
+        const nextYearStart = new Date(currentYear + 1, 0, 1);
 
         const monthlyData = await Visitor.aggregate([
             {
                 $match: {
                     createdAt: {
-                        $gte: new Date(`${currentYear}-01-01`),
-                        $lte: new Date(`${currentYear}-12-31T23:59:59.999Z`)
+                        $gte: yearStart,
+                        $lt: nextYearStart
                     }
                 }
             },
-
             {
                 $group: {
                     _id: {
@@ -108,13 +108,11 @@ const dashboard = async (req, res) => {
                             $month: "$createdAt"
                         }
                     },
-
                     total: {
                         $sum: 1
                     }
                 }
             },
-
             {
                 $sort: {
                     "_id.month": 1
@@ -122,31 +120,103 @@ const dashboard = async (req, res) => {
             }
         ]);
 
-        // Create 12 months with 0 as default
+        // Always return 12 months
         const monthlyVisitors = Array(12).fill(0);
 
-        monthlyData.forEach(item => {
-            monthlyVisitors[item._id.month - 1] = item.total;
+        monthlyData.forEach((item) => {
+            const monthIndex = item._id.month - 1;
+
+            if (monthIndex >= 0 && monthIndex < 12) {
+                monthlyVisitors[monthIndex] = item.total;
+            }
         });
 
-        res.render("admin/dashboard", {
+        // ------------------------------------------
+        // Maintenance - Total Collected
+        // ------------------------------------------
+
+        const totalCollectedResult = await Maintenance.aggregate([
+            {
+                $match: {
+                    status: "Paid"
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    total: {
+                        $sum: {
+                            $ifNull: ["$amount", 0]
+                        }
+                    }
+                }
+            }
+        ]);
+
+        const totalCollected =
+            totalCollectedResult.length > 0
+                ? totalCollectedResult[0].total
+                : 0;
+
+        // ------------------------------------------
+        // Maintenance - Pending Amount
+        // ------------------------------------------
+
+        const pendingAmountResult = await Maintenance.aggregate([
+            {
+                $match: {
+                    status: {
+                        $in: ["Pending", "Overdue"]
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    total: {
+                        $sum: {
+                            $ifNull: ["$amount", 0]
+                        }
+                    }
+                }
+            }
+        ]);
+
+        const pendingAmount =
+            pendingAmountResult.length > 0
+                ? pendingAmountResult[0].total
+                : 0;
+
+        // ------------------------------------------
+        // Render Dashboard
+        // ------------------------------------------
+
+        return res.render("admin/dashboard", {
             totalResidents,
             todayVisitors,
             pendingComplaints,
             recentComplaints,
             visitors,
             notices,
-            monthlyVisitors
+            monthlyVisitors,
+            totalCollected,
+            pendingAmount
         });
 
     } catch (error) {
+        console.error("Admin Dashboard Error:", error);
 
-        console.error("Dashboard Error:", error);
-
-        res.status(500).send("Internal Server Error");
+        return res.status(500).send(
+            "Unable to load admin dashboard."
+        );
     }
 };
+
+// ==================================================
+// EXPORT CONTROLLER
+// ==================================================
 
 module.exports = {
     dashboard
 };
+

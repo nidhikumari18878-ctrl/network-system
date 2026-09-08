@@ -4,207 +4,150 @@ const bcrypt = require("bcrypt");
 // ==========================
 // GET REGISTER PAGE
 // ==========================
-
 exports.getRegister = (req, res) => {
     res.render("auth/register");
 };
 
-
 // ==========================
 // REGISTER USER
 // ==========================
-
 exports.register = async (req, res) => {
-
     try {
+        const { name, email, phone, flat, password, confirmPassword, role } = req.body;
 
-        const {
-            name,
-            email,
-            phone,
-            flat,
-            role,
-            password,
-            confirmPassword
-        } = req.body;
-
-
-        // --------------------------
         // Check required fields
-        // --------------------------
-
-        if (
-            !name ||
-            !email ||
-            !phone ||
-            !password ||
-            !confirmPassword
-        ) {
-            return res.send("Please fill all required fields");
+        if (!name || !email || !phone || !password || !confirmPassword) {
+            return res.status(400).send("Please fill all required fields");
         }
 
-
-        // --------------------------
         // Check password
-        // --------------------------
-
         if (password !== confirmPassword) {
-            return res.send("Passwords do not match");
+            return res.status(400).send("Passwords do not match");
         }
 
+        if (password.length < 6) {
+            return res.status(400).send("Password must be at least 6 characters long");
+        }
 
-        // --------------------------
+        const normalizedEmail = email.trim().toLowerCase();
+
         // Check existing email
-        // --------------------------
-
-        const existingUser = await User.findOne({
-            email: email.toLowerCase()
-        });
-
+        const existingUser = await User.findOne({ email: normalizedEmail });
         if (existingUser) {
-            return res.send("Email already registered");
+            return res.status(409).send("Email already registered");
         }
 
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        // --------------------------
-        // Hash password
-        // --------------------------
+        // Create user - prevent admin registration from public
+        let userRole = "resident";
+        if (role === "security") {
+            userRole = "security";
+        }
+        // admin role is not allowed via public registration
 
-        const hashedPassword = await bcrypt.hash(
-            password,
-            10
-        );
-
-
-        // --------------------------
-        // Role
-        // --------------------------
-
-        const userRole = role || "resident";
-
-
-        // --------------------------
-        // Create User
-        // --------------------------
-
-        const user = await User.create({
-
-            name,
-
-            email: email.toLowerCase(),
-
-            phone,
-
-            flat,
-
+        await User.create({
+            name: name.trim(),
+            email: normalizedEmail,
+            phone: phone.trim(),
+            flat: flat ? flat.trim() : "",
             role: userRole,
-
-            password: hashedPassword
-
+            password: hashedPassword,
+            status: "Active"
         });
 
-
-        console.log("User Registered:", user._id);
-
-
-        // --------------------------
-        // Redirect Login
-        // --------------------------
-
-        res.redirect("/login");
-
+        console.log("User Registered successfully");
+        return res.redirect("/login?success=Registration successful! Please login.");
 
     } catch (error) {
-
-        console.log("Registration Error:", error);
-
-        res.status(500).send("Server Error");
-
+        console.error("Registration Error:", error);
+        if (error.code === 11000) {
+            return res.status(409).send("Email already registered");
+        }
+        if (error.name === "ValidationError") {
+            const messages = Object.values(error.errors).map(err => err.message).join(", ");
+            return res.status(400).send(messages);
+        }
+        return res.status(500).send("Server Error");
     }
-
 };
+
 // ==========================
 // GET LOGIN PAGE
 // ==========================
-
 exports.getLogin = (req, res) => {
     res.render("auth/login");
 };
 
-
 // ==========================
 // LOGIN USER
 // ==========================
-
 exports.login = async (req, res) => {
-
     try {
-
         const { email, password } = req.body;
 
-        // Check fields
         if (!email || !password) {
-            return res.send("Please enter email and password");
+            return res.status(400).send("Please enter email and password");
         }
 
-        // Find user
-        const user = await User.findOne({
-            email: email.toLowerCase()
-        });
+        const normalizedEmail = email.trim().toLowerCase();
+        const user = await User.findOne({ email: normalizedEmail });
 
         if (!user) {
-            return res.send("Invalid email or password");
+            return res.status(401).send("Invalid email or password");
         }
 
-        // Compare password
-        const isMatch = await bcrypt.compare(
-            password,
-            user.password
-        );
+        if (user.status === "Inactive") {
+            return res.status(403).send("Your account is inactive. Please contact the administrator.");
+        }
 
+        const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.send("Invalid email or password");
+            return res.status(401).send("Invalid email or password");
         }
+
+        req.session.user = {
+            id: user._id.toString(),
+            name: user.name,
+            email: user.email,
+            role: user.role
+        };
 
         console.log("Login successful:", user.email);
-        // Create Session
 
-req.session.user = {
-    id: user._id,
-    name: user.name,
-    email: user.email,
-    role: user.role
-};
-
-
-console.log("Session Created:", req.session.user);
-        // Temporary redirect based on role
+        if (user.role === "admin") {
+            return res.redirect("/admin/dashboard");
+        }
         if (user.role === "resident") {
             return res.redirect("/resident/dashboard");
         }
-
         if (user.role === "security") {
             return res.redirect("/security/dashboard");
         }
 
-        return res.send("Invalid user role");
+        req.session.destroy(() => {});
+        return res.status(403).send("Invalid user role");
 
     } catch (error) {
-
-        console.log("Login Error:", error);
-
-        res.status(500).send("Server Error");
+        console.error("Login Error:", error);
+        return res.status(500).send("Server Error");
     }
 };
+
+// ==========================
+// LOGOUT USER
+// ==========================
 exports.logout = (req, res) => {
+    if (!req.session) {
+        return res.redirect("/login");
+    }
 
     req.session.destroy((error) => {
-
         if (error) {
-            console.log(error);
+            console.error("Logout Error:", error);
             return res.status(500).send("Logout failed");
         }
-
-        res.redirect("/login");
+        res.clearCookie("connect.sid");
+        return res.redirect("/login");
     });
 };
