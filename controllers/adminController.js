@@ -216,7 +216,4 @@ const dashboard = async (req, res) => {
 // EXPORT CONTROLLER
 // ==================================================
 
-module.exports = {
-    dashboard
-};
-
+exports.dashboard = dashboard;
